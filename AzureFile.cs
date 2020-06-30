@@ -64,6 +64,13 @@ namespace AzureInitial
       
     }
 
+    public static void DeleteFile(string filePath) {
+
+      CloudFileDirectory rootDir = GetRootDirectory();
+      CloudFile file = rootDir.GetFileReference(filePath);
+
+      file.DeleteIfExists();
+    }
 
   }
 }
