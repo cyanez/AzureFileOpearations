@@ -6,7 +6,8 @@ namespace AzureInitial
   {
     static void Main(string[] args) {
 
-      Console.WriteLine("Initial Command!!!");   
+      AzureFile.UploadFile(@"D:\varios\REPORTE.doc", @"images/marian/img");
+      Console.WriteLine("Upload File!!!");   
       Console.ReadLine();
 
     }
