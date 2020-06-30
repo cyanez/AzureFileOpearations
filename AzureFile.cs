@@ -96,18 +96,26 @@ namespace AzureInitial
       string sasToken = file.GetSharedAccessSignature(null, "SharePolicy");
       Uri fileSASUri = new Uri(file.StorageUri.PrimaryUri.ToString() + sasToken);
       CloudFile fileSAS = new CloudFile(fileSASUri);
-
-      fileSAS.UploadText("This write operation is authorized via SAS.");
-      Console.WriteLine(fileSAS.DownloadText());
-      Console.WriteLine("Token:" + sasToken);
-      Console.WriteLine("Uri" + fileSASUri.ToString());
+      
     }
 
-    public static void GetSASToken(string filePath) {
-      CloudFileDirectory rootDir = GetRootDirectory();
-      CloudFile file = rootDir.GetFileReference(filePath);
+    public static void Copy(string sourceFilePath, string destPath) {
+      
+      CloudFileDirectory rootDir = GetRootDirectory();      
+      CloudFile sourceFile = rootDir.GetFileReference(sourceFilePath);
 
-      Console.WriteLine(file.Uri);
+      if (!sourceFile.Exists()) {
+        throw new Exception("I cant find the sourceFile!!!");
+      }
+
+      CloudFileDirectory destDirectory = rootDir.GetDirectoryReference(destPath);
+      destDirectory.CreateIfNotExists();
+
+      string destFileName = Path.GetFileName(sourceFilePath);
+      CloudFile destFile = destDirectory.GetFileReference(destFileName);
+
+      destFile.StartCopy(sourceFile);
+
     }
 
   }
