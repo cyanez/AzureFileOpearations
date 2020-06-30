@@ -52,16 +52,13 @@ namespace AzureInitial
       string fileName = Path.GetFileName(sourceFilePath);
 
       CloudFileDirectory rootDir = GetRootDirectory();    
-      CloudFileDirectory directoryReference = rootDir.GetDirectoryReference(directory);
-      if (!directoryReference.Exists()) {
-        throw new Exception("I cant find Directory in this Share!!!");
-      }
-      CloudFile file = directoryReference.GetFileReference(fileName);
+      CloudFile file = rootDir.GetFileReference(sourceFilePath);
+      
       if (!file.Exists()) {
         throw new Exception("I cant find the file in the directory!!!");
       }
-      file.DownloadToFileAsync(destinationPath + "\\" + fileName, System.IO.FileMode.OpenOrCreate).Wait();     
-      
+
+      file.DownloadToFileAsync(destinationPath + "\\" + fileName, System.IO.FileMode.OpenOrCreate).Wait();           
     }
 
     public static void DeleteFile(string filePath) {
