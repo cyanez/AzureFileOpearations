@@ -31,18 +31,18 @@ namespace AzureInitial
     }
 
     static public void UploadFile(string sourceFile, string path) {
-      
+
       CloudFileDirectory rootDir = GetRootDirectory();
       CloudFileDirectory cloudFileDirectory = rootDir.GetDirectoryReference(path);
       cloudFileDirectory.CreateIfNotExists();
 
-      string destFileName = Path.GetFileName(sourceFile);  
+      string destFileName = Path.GetFileName(sourceFile);
 
       CloudFile cloudFile = cloudFileDirectory.GetFileReference(destFileName);
 
       using (Stream fileStream = File.OpenRead(sourceFile)) {
         cloudFile.UploadFromStreamAsync(fileStream).Wait();
-      }  
+      }
 
     }
 
@@ -51,14 +51,14 @@ namespace AzureInitial
       string directory = Path.GetDirectoryName(sourceFilePath);
       string fileName = Path.GetFileName(sourceFilePath);
 
-      CloudFileDirectory rootDir = GetRootDirectory();    
+      CloudFileDirectory rootDir = GetRootDirectory();
       CloudFile file = rootDir.GetFileReference(sourceFilePath);
-      
+
       if (!file.Exists()) {
         throw new Exception("I cant find the file in the directory!!!");
       }
 
-      file.DownloadToFileAsync(destinationPath + "\\" + fileName, System.IO.FileMode.OpenOrCreate).Wait();           
+      file.DownloadToFileAsync(destinationPath + "\\" + fileName, System.IO.FileMode.OpenOrCreate).Wait();
     }
 
     public static void DeleteFile(string filePath) {
@@ -69,5 +69,47 @@ namespace AzureInitial
       file.DeleteIfExists();
     }
 
+    public static void SetSharePermissions() {
+
+      CloudFileShare share = GetShare(SHARE);
+
+      if (share.Exists()) {
+        string policyName = "SharePolicy";
+
+        SharedAccessFilePolicy sharedPolicy = new SharedAccessFilePolicy() {
+          SharedAccessExpiryTime = DateTime.UtcNow.AddHours(24),
+          Permissions = SharedAccessFilePermissions.Read | SharedAccessFilePermissions.Write
+        };
+
+        FileSharePermissions permissions = share.GetPermissions();
+        permissions.SharedAccessPolicies.Add(policyName, sharedPolicy);
+        share.SetPermissions(permissions);
+
+      }
+    }
+
+    public static void GenerateSAS(string filePath) {
+
+      CloudFileDirectory rootDir = GetRootDirectory();
+      CloudFile file = rootDir.GetFileReference(filePath);
+
+      string sasToken = file.GetSharedAccessSignature(null, "SharePolicy");
+      Uri fileSASUri = new Uri(file.StorageUri.PrimaryUri.ToString() + sasToken);
+      CloudFile fileSAS = new CloudFile(fileSASUri);
+
+      fileSAS.UploadText("This write operation is authorized via SAS.");
+      Console.WriteLine(fileSAS.DownloadText());
+      Console.WriteLine("Token:" + sasToken);
+      Console.WriteLine("Uri" + fileSASUri.ToString());
+    }
+
+    public static void GetSASToken(string filePath) {
+      CloudFileDirectory rootDir = GetRootDirectory();
+      CloudFile file = rootDir.GetFileReference(filePath);
+
+      Console.WriteLine(file.Uri);
+    }
+
   }
-}
+
+  }
