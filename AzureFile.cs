@@ -118,6 +118,13 @@ namespace AzureInitial
 
     }
 
+    public static void Move(string sourceFilePath, string destPath) {
+
+      Copy(sourceFilePath, destPath);
+      DeleteFile(sourceFilePath);
+    }
+
+
   }
 
   }
