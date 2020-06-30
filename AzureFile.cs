@@ -46,5 +46,24 @@ namespace AzureInitial
 
     }
 
+    public static void DownloadFile(string sourceFilePath, string destinationPath) {
+
+      string directory = Path.GetDirectoryName(sourceFilePath);
+      string fileName = Path.GetFileName(sourceFilePath);
+
+      CloudFileDirectory rootDir = GetRootDirectory();    
+      CloudFileDirectory directoryReference = rootDir.GetDirectoryReference(directory);
+      if (!directoryReference.Exists()) {
+        throw new Exception("I cant find Directory in this Share!!!");
+      }
+      CloudFile file = directoryReference.GetFileReference(fileName);
+      if (!file.Exists()) {
+        throw new Exception("I cant find the file in the directory!!!");
+      }
+      file.DownloadToFileAsync(destinationPath + "\\" + fileName, System.IO.FileMode.OpenOrCreate).Wait();     
+      
+    }
+
+
   }
 }
